@@ -2991,12 +2991,3 @@ while True:
 	print("Bot restarting")
 	client = discord.Client(loop=client.loop)
 	client = commands.Bot(command_prefix="", help_command = None, description='일상디코봇')
-	#테스트입니다.11
-	#흠흠
-	#ㅁㄴㅇㄹ
-	#되는건가
-	#추가 테스트
-
-	#branch test
-	#아아아아
-	#다시한번 테스트
