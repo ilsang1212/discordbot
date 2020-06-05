@@ -2991,5 +2991,6 @@ while True:
 	print("Bot restarting")
 	client = discord.Client(loop=client.loop)
 	client = commands.Bot(command_prefix="", help_command = None, description='일상디코봇')
-	#이번껀?
+
+	# 일상브랜치 마지막
 
