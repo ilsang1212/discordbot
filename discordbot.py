@@ -2993,4 +2993,4 @@ while True:
 	client = commands.Bot(command_prefix="", help_command = None, description='일상디코봇')
 	#테스트입니다.11
 	#흠흠
-
+	#ㅁㄴㅇㄹ
