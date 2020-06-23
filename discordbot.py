@@ -4,21 +4,21 @@
 #########################################################################################
 #########################################################################################
 #########################################################################################
-###### 개발환경 : python 3.7.3									                    ######
-######		   discord = 1.0.1											           ######
-######		   discord.py = 1.3.3									               ######
-######		   gtts = 2.0.3											               ######
-###### 모듈설치 : pip install setuptools --upgrade				                    ######
-######		   pip install websockets==6.0						                   ######
-######		   pip install discord								                   ######
-######		   pip install discord.py[voice]			                           ######
-######		   pip install gtts					                                   ######
-######		   pip install pyssml							                       ######
-######		   pip install pywin32							                       ######
-######		   pip install pyinstaller					                           ######
-######		   pip install oauth2client					                           ######
-######		   pip install gspread   					                           ######
-######		   pip install PyOpenSSL		    		                           ######
+###### 개발환경 : python 3.7.3														######
+######		   discord = 1.0.1														######
+######		   discord.py = 1.3.3													######
+######		   gtts = 2.0.3															######
+###### 모듈설치 : pip install setuptools --upgrade									######
+######		   pip install websockets==6.0											######
+######		   pip install discord													######
+######		   pip install discord.py[voice]										######
+######		   pip install gtts														######
+######		   pip install pyssml													######
+######		   pip install pywin32													######
+######		   pip install pyinstaller												######
+######		   pip install oauth2client												######
+######		   pip install gspread													######
+######		   pip install PyOpenSSL												######
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -1078,7 +1078,8 @@ async def on_ready():
 	await client.change_presence(status=discord.Status.dnd, activity=discord.Game(name=command[1][0], type=1), afk = False)
 
 while True:
-	################ 보탐봇 입장 ################ 	
+	################ 보탐봇 입장 ################
+	@commands.has_permissions(manage_messages=True)
 	@client.command(name=command[0][0], aliases=command[0][1:])
 	async def join_(ctx):
 		global basicSetting
@@ -1408,6 +1409,7 @@ while True:
 			return
 
 	################ 보탐봇 음성채널 소환 ################ 
+	@commands.has_permissions(manage_messages=True)
 	@client.command(name=command[6][0], aliases=command[6][1:])
 	async def connectVoice_(ctx):
 		global voice_client1
@@ -2731,6 +2733,8 @@ while True:
 			return
 		elif isinstance(error, discord.ext.commands.MissingRequiredArgument):
 			return
+		elif isinstance(error, discord.ext.commands.errors.MissingPermissions):
+			return await ctx.send(f"**[{ctx.message.content}]** 명령을 사용할 권한이 없습니다.!")
 		raise error
 
 	@client.event
