@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- 
 
-##################################### PC V23.5 ##########################################
+############################ PC Ver. 24 (2020. 6. 23.) ##################################
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -182,17 +182,11 @@ def init():
 	command_inidata = open('command.ini', 'r', encoding = 'utf-8')
 	kill_inidata = open('kill_list.ini', 'r', encoding = 'utf-8')
 
-	tmp_inputData = inidata.readlines()
-	tmp_boss_inputData = boss_inidata.readlines()
-	tmp_fixed_inputData = fixed_initdata.readlines()
-	tmp_command_inidata = command_inidata.readlines()
-	tmp_kill_inidata = kill_inidata.readlines()
-
-	inputData = tmp_inputData
-	boss_inputData = tmp_boss_inputData
-	fixed_inputData = tmp_fixed_inputData
-	command_inputData = tmp_command_inidata
-	kill_inputData = tmp_kill_inidata
+	inputData = inidata.readlines()
+	boss_inputData = boss_inidata.readlines()
+	fixed_inputData = fixed_initdata.readlines()
+	command_inputData = command_inidata.readlines()
+	kill_inputData = kill_inidata.readlines()
 
 	for i in range(len(inputData)):
 		InitkatalkData.append(inputData[i])
@@ -1001,6 +995,8 @@ def handle_exit():
 
 @client.event
 async def on_ready():
+	global basicSetting
+	
 	global channel
 
 	global voice_client1
@@ -1016,14 +1012,17 @@ async def on_ready():
 	global chflg
 
 	global endTime
+	global curr_guild_info
+	global setting_channel_name
 			
 	print("Logged in as ") #화면에 봇의 아이디, 닉네임이 출력됩니다.
 	print(client.user.name)
 	print(client.user.id)
 	print("===========")
 
+	all_guilds = client.guilds
 	all_channels = client.get_all_channels()
-	
+
 	for channel1 in all_channels:
 		channel_type.append(str(channel1.type))
 		channel_info.append(channel1)
@@ -1041,26 +1040,38 @@ async def on_ready():
 	await dbLoad()
 
 	if basicSetting[6] != "" and basicSetting[7] != "" :
-		voice_client1 = await client.get_channel(basicSetting[6]).connect(reconnect=True)
-		channel = basicSetting[7]
+		if str(basicSetting[6]) in channel_voice_id and str(basicSetting[7]) in channel_id:
+			for guild in all_guilds:
+				for text_channel in guild.text_channels:
+					if basicSetting[7] == text_channel.id:
+						curr_guild_info = guild
+			
+			voice_client1 = await client.get_channel(basicSetting[6]).connect(reconnect=True)
+			channel = basicSetting[7]
+			
+			setting_channel_name = client.get_channel(basicSetting[7]).name
 
-		print('< 접속시간 [' + datetime.datetime.now().strftime('%Y-%m-%d ') + datetime.datetime.now().strftime('%H:%M:%S') + '] >')
-		print('< 텍스트채널 [' + client.get_channel(basicSetting[7]).name + '] 접속완료 >')
-		print('< 음성채널 [' + client.get_channel(basicSetting[6]).name + '] 접속완료 >')
-		if basicSetting[10] != "":
-			print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료 >')
-		if basicSetting[13] != "":
-			print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
-		if basicSetting[20] != "":
-			print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
-		if basicSetting[21] != "":
-			print('< 경주채널 [' + client.get_channel(int(basicSetting[21])).name + '] 접속완료>')
-		if int(basicSetting[12]) != 0 :
-			print('< 보탐봇 재시작 시간 [' + endTime.strftime('%Y-%m-%d ') + endTime.strftime('%H:%M:%S') + '] >')
-			print('< 보탐봇 재시작 주기 [' + basicSetting[12] + '일] >')
-		else :
-			print('< 보탐봇 재시작 설정안됨 >')
-		chflg = 1
+			print('< 접속시간 [' + datetime.datetime.now().strftime('%Y-%m-%d ') + datetime.datetime.now().strftime('%H:%M:%S') + '] >')
+			print('< 텍스트채널 [' + client.get_channel(basicSetting[7]).name + '] 접속완료 >')
+			print('< 음성채널 [' + client.get_channel(basicSetting[6]).name + '] 접속완료 >')
+			if basicSetting[10] != "":
+				print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료 >')
+			if basicSetting[13] != "":
+				print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
+			if basicSetting[20] != "":
+				print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
+			if basicSetting[21] != "":
+				print('< 경주채널 [' + client.get_channel(int(basicSetting[21])).name + '] 접속완료>')
+			if int(basicSetting[12]) != 0 :
+				print('< 보탐봇 재시작 시간 [' + endTime.strftime('%Y-%m-%d ') + endTime.strftime('%H:%M:%S') + '] >')
+				print('< 보탐봇 재시작 주기 [' + basicSetting[12] + '일] >')
+			else :
+				print('< 보탐봇 재시작 설정안됨 >')
+			chflg = 1
+		else:
+			basicSetting[6] = ""
+			basicSetting[7] = ""
+			print(f"설정된 채널 값이 잘못 됐습니다. **[{command[0][0]}]** 명령어 먼저 입력하여 사용해주시기 바랍니다.")
 	
 	# 디스코드에는 현재 본인이 어떤 게임을 플레이하는지 보여주는 기능이 있습니다.
 	# 이 기능을 사용하여 봇의 상태를 간단하게 출력해줄 수 있습니다.
@@ -1086,14 +1097,14 @@ while True:
 		
 			inidata_text = open('test_setting.ini', 'w', encoding = 'utf-8')				
 			for i in range(len(inputData_text)):
-				if inputData_text[i] == 'textchannel = \n':
+				if inputData_text[i].startswith("textchannel ="):
 					inputData_text[i] = 'textchannel = ' +str(channel) + '\n'
 					basicSetting[7] = channel
 			
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send('< 텍스트채널 [' + ctx.message.channel.name + '] 접속완료 >\n< 음성채널 접속 후 [소환] 명령을 사용 하세요 >', tts=False)
+			await ctx.send(f"< 텍스트채널 [{ctx.message.channel.name}] 접속완료 >\n< 음성채널 접속 후 [{command[6][0]}] 명령을 사용 하세요 >", tts=False)
 			
 			print('< 텍스트채널 [' + client.get_channel(basicSetting[7]).name + '] 접속완료>')
 			if basicSetting[6] != "":
@@ -1113,9 +1124,43 @@ while True:
 			
 			chflg = 1
 		else:
-			await ctx.send('이미 [' + ctx.guild.get_channel(basicSetting[7]).name + '] 에 입장돼 있습니다. 해당 채널에서 명령어를 사용해주세요.!\n', tts=False)
+			emoji_list : list = ["⭕", "❌"]
+			guild_error_message = await ctx.send(f"이미 **[{curr_guild_info.name}]** 서버 **[{setting_channel_name}]** 채널이 명령어 채널로 설정되어 있습니다.\n해당 채널로 명령어 채널을 변경 하시려면 ⭕ 그대로 사용하시려면 ❌ 를 눌러주세요.\n(10초이내 미입력시 기존 설정 그대로 설정됩니다.)", tts=False)
 
-	################ 보탐봇 메뉴 출력 ################ 	
+			for emoji in emoji_list:
+				await guild_error_message.add_reaction(emoji)
+
+			def reaction_check(reaction, user):
+				return (reaction.message.id == guild_error_message.id) and (user.id == ctx.author.id) and (str(reaction) in emoji_list)
+			try:
+				reaction, user = await client.wait_for('reaction_add', check = reaction_check, timeout = 10)
+			except asyncio.TimeoutError:
+				return await ctx.send(f"시간이 초과됐습니다. **[{curr_guild_info.name}]** 서버 **[{setting_channel_name}]** 채널에서 사용해주세요!")
+			
+			if str(reaction) == "⭕":
+				basicSetting[6] = ""
+				basicSetting[7] = int(ctx.message.channel.id)
+
+				print ('[ ', basicSetting[7], ' ]')
+				print ('] ', ctx.message.channel.name, ' [')
+
+				inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
+				inputData_text = inidata_text.readlines()
+				inidata_text.close()
+			
+				inidata_text = open('test_setting.ini', 'w', encoding = 'utf-8')				
+				for i in range(len(inputData_text)):
+					if inputData_text[i].startswith("textchannel ="):
+						inputData_text[i] = 'textchannel = ' +str(basicSetting[7]) + '\n'
+				
+				inidata_text.writelines(inputData_text)
+				inidata_text.close()
+
+				return await ctx.send(f"명령어 채널이 **[{ctx.author.guild.name}]** 서버 **[{ctx.message.channel.name}]** 채널로 새로 설정되었습니다.\n< 음성채널 접속 후 [{command[6][0]}] 명령을 사용 하세요 >")
+			else:
+				return await ctx.send(f"초기화가 취소되었습니다.\n**[{curr_guild_info.name}]** 서버 **[{setting_channel_name}]** 채널에서 사용해주세요!")
+
+	################ 보탐봇 메뉴 출력 ################ 	.
 
 	@client.command(name=command[1][0], aliases=command[1][1:])
 	async def menu_(ctx):
@@ -1181,7 +1226,7 @@ while True:
 	async def setting_(ctx):	
 		#print (ctx.message.channel.id)
 		if ctx.message.channel.id == basicSetting[7]:
-			setting_val = '보탐봇버전 : PC Ver. 23.5 (2020. 6. 3.)\n'
+			setting_val = '보탐봇버전 : PC Ver. 24 (2020. 6. 23.)\n'
 			setting_val += '음성채널 : ' + client.get_channel(basicSetting[6]).name + '\n'
 			setting_val += '텍스트채널 : ' + client.get_channel(basicSetting[7]).name +'\n'
 			if basicSetting[10] != "" :
@@ -1350,7 +1395,7 @@ while True:
 				
 				inidata_text = open('test_setting.ini', 'w', encoding = 'utf-8')
 				for i in range(len(inputData_text)):
-					if inputData_text[i] == 'textchannel = ' + str(basicSetting[7]) + '\n':
+					if inputData_text[i].startswith('textchannel ='):
 						inputData_text[i] = 'textchannel = ' + str(channel) + '\n'
 						basicSetting[7] = channel
 							
@@ -1392,7 +1437,7 @@ while True:
 			
 				inidata_voice = open('test_setting.ini', 'w', encoding = 'utf-8')				
 				for i in range(len(inputData_voice)):
-					if inputData_voice[i] == 'voicechannel = \n':
+					if inputData_voice[i].startswith('voicechannel ='):
 						inputData_voice[i] = 'voicechannel = ' + str(voice_channel.id) + '\n'
 						basicSetting[6] = int(voice_channel.id)
 						#print ('======', inputData_voice[i])
@@ -1407,7 +1452,7 @@ while True:
 				
 				inidata_voice = open('test_setting.ini', 'w', encoding = 'utf-8')
 				for i in range(len(inputData_voice)):
-					if inputData_voice[i] == 'voicechannel = ' + str(basicSetting[6]) + '\n':
+					if inputData_voice[i].startswith('voicechannel ='):
 						inputData_voice[i] = 'voicechannel = ' + str(voice_channel.id) + '\n'
 						basicSetting[6] = int(voice_channel.id)
 						#print ('+++++++', inputData_voice[i])
