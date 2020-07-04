@@ -318,6 +318,10 @@ def init():
 	if basicSetting[21] != "":
 		basicSetting[21] = int(basicSetting[21])
 
+	if basicSetting[22] != "":
+		basicSetting[22] = int(basicSetting[22])
+
+
 	bossNum = int(len(boss_inputData)/6) 
 
 	fixed_bossNum = int(len(fixed_inputData)/7) 
@@ -441,13 +445,14 @@ def init():
 		f = []
 
 	regenembed = discord.Embed(
-			title='----- 리스폰 보스 -----',
+			title='----- 보스별 리스폰 시간-----',
 			description= ' ')
 	for i in range(len(regenTime)):
 		if outputTimeMin[i] == 0 :
 			regenembed.add_field(name=str(outputTimeHour[i]) + '시간', value= '```'+ ', '.join(map(str, sorted(regenbossName[i]))) + '```', inline=False)
 		else :
 			regenembed.add_field(name=str(outputTimeHour[i]) + '시간' + str(outputTimeMin[i]) + '분', value= '```' + ','.join(map(str, sorted(regenbossName[i]))) + '```', inline=False)
+	regenembed.set_footer(text = 'R : 멍 보스')
 	
 	##########################################################
 
@@ -520,6 +525,7 @@ async def task():
 			await client.get_channel(channel).send( '< 디코접속에러! 잠깐 나갔다 올께요! >', tts=False)
 			await dbSave()
 			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+			await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 			raise SystemExit
 
 		log_stream.truncate(0)
@@ -537,6 +543,7 @@ async def task():
 				await dbSave()
 				await FixedBossDateSave()
 				await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+				await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 				endTime = endTime + datetime.timedelta(days=int(basicSetting[12]))
 				await voice_client1.disconnect()
 				#await client.get_channel(channel).send( '<보탐봇 화장실 갔다올 시간! 접속완료 후 명령어 입력 해주세요!>', tts=False)
@@ -547,7 +554,7 @@ async def task():
 			################ 킬 목록 초기화 ################ 
 			if kill_Time.strftime('%Y-%m-%d ') + kill_Time.strftime('%H:%M') == now.strftime('%Y-%m-%d ') + now.strftime('%H:%M'):
 				kill_Time = kill_Time + datetime.timedelta(days=int(1))
-				await initkill_list()
+				await init_data_list('kill_list.ini', '-----척살명단-----')
 			
 			################ 고정 보스 확인 ################ 
 			for i in range(fixed_bossNum):
@@ -877,16 +884,16 @@ async def LadderFunc(number, ladderlist, channelVal):
 		await channelVal.send('```추첨인원이 총 인원과 같거나 많습니다. 재입력 해주세요```', tts=False)
 
 #data초기화
-async def init_data_list(filename, fist_line : str = "-----------"):
+async def init_data_list(filename, first_line : str = "-----------"):
 	file = open(filename, 'w', encoding = 'utf-8')
-	file.writelines(fist_line)
+	file.writelines(first_line)
 	file.close()
 	print ('< 데이터 초기화 >')
 
-#킬목록저장
-async def data_list_Save(filename, fist_line : str = "-----------",  save_data : dict = {}):
+#data저장
+async def data_list_Save(filename, first_line : str = "-----------",  save_data : dict = {}):
 
-	output_list = fist_line+ '\n'
+	output_list = first_line+ '\n'
 	for key, value in save_data.items():
 		output_list += str(key) + ' ' + str(value) + '\n'
 
@@ -1066,13 +1073,35 @@ async def on_ready():
 		print('< 텍스트채널 [' + client.get_channel(basicSetting[7]).name + '] 접속완료 >')
 		print('< 음성채널 [' + client.get_channel(basicSetting[6]).name + '] 접속완료 >')
 		if basicSetting[10] != "":
-			print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료 >')
+			if str(basicSetting[10]) in channel_id:
+				print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료 >')
+			else:
+				basicSetting[10] = ""
+				print(f"사다리채널 ID 오류! [{command[33][0]} 사다리] 명령으로 재설정 바랍니다.")
 		if basicSetting[13] != "":
-			print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
+			if str(basicSetting[13]) in channel_id:
+				print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
+			else:
+				basicSetting[13] = ""
+				print(f"정산채널 ID 오류! [{command[33][0]} 정산] 명령으로 재설정 바랍니다.")
 		if basicSetting[20] != "":
-			print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
+			if str(basicSetting[20]) in channel_id:
+				print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
+			else:
+				basicSetting[20] = ""
+				print(f"척살채널 ID 오류! [{command[33][0]} 척살] 명령으로 재설정 바랍니다.")
 		if basicSetting[21] != "":
-			print('< 경주채널 [' + client.get_channel(int(basicSetting[21])).name + '] 접속완료>')
+			if str(basicSetting[21]) in channel_id:
+				print('< 경주채널 [' + client.get_channel(int(basicSetting[21])).name + '] 접속완료>')
+			else:
+				basicSetting[21] = ""
+				print(f"경주채널 ID 오류! [{command[33][0]} 경주] 명령으로 재설정 바랍니다.")
+		if basicSetting[22] != "":
+			if str(basicSetting[22]) in channel_id:
+				print('< 아이템채널 [' + client.get_channel(int(basicSetting[22])).name + '] 접속완료>')
+			else:
+				basicSetting[22] = ""
+				print(f"아이템채널 ID 오류! [{command[33][0]} 아이템] 명령으로 재설정 바랍니다.")
 		if int(basicSetting[12]) != 0 :
 			print('< 보탐봇 재시작 시간 [' + endTime.strftime('%Y-%m-%d ') + endTime.strftime('%H:%M:%S') + '] >')
 			print('< 보탐봇 재시작 주기 [' + basicSetting[12] + '일] >')
@@ -1123,11 +1152,35 @@ while True:
 				voice_client1 = await client.get_channel(basicSetting[6]).connect(reconnect=True)
 				print('< 음성채널 [' + client.get_channel(basicSetting[6]).name + '] 접속완료>')
 			if basicSetting[10] != "":
-				print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료>')
+				if str(basicSetting[10]) in channel_id:
+					print('< 사다리채널 [' + client.get_channel(int(basicSetting[10])).name + '] 접속완료 >')
+				else:
+					basicSetting[10] = ""
+					print(f"사다리채널 ID 오류! [{command[33][0]} 사다리] 명령으로 재설정 바랍니다.")
 			if basicSetting[13] != "":
-				print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
+				if str(basicSetting[13]) in channel_id:
+					print('< 정산채널 [' + client.get_channel(int(basicSetting[13])).name + '] 접속완료>')
+				else:
+					basicSetting[13] = ""
+					print(f"정산채널 ID 오류! [{command[33][0]} 정산] 명령으로 재설정 바랍니다.")
 			if basicSetting[20] != "":
-				print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
+				if str(basicSetting[20]) in channel_id:
+					print('< 척살채널 [' + client.get_channel(int(basicSetting[20])).name + '] 접속완료>')
+				else:
+					basicSetting[20] = ""
+					print(f"척살채널 ID 오류! [{command[33][0]} 척살] 명령으로 재설정 바랍니다.")
+			if basicSetting[21] != "":
+				if str(basicSetting[21]) in channel_id:
+					print('< 경주채널 [' + client.get_channel(int(basicSetting[21])).name + '] 접속완료>')
+				else:
+					basicSetting[21] = ""
+					print(f"경주채널 ID 오류! [{command[33][0]} 경주] 명령으로 재설정 바랍니다.")
+			if basicSetting[22] != "":
+				if str(basicSetting[22]) in channel_id:
+					print('< 아이템채널 [' + client.get_channel(int(basicSetting[22])).name + '] 접속완료>')
+				else:
+					basicSetting[22] = ""
+					print(f"아이템채널 ID 오류! [{command[33][0]} 아이템] 명령으로 재설정 바랍니다.")
 			if int(basicSetting[12]) != 0 :
 				print('< 보탐봇 재시작 시간 ' + endTime.strftime('%Y-%m-%d ') + endTime.strftime('%H:%M:%S') + ' >')
 				print('< 보탐봇 재시작 주기 ' + basicSetting[12] + '일 >')
@@ -1210,11 +1263,17 @@ while True:
 			command_list += ','.join(command[30]) + '\n'     #!킬횟수 확인
 			command_list += ','.join(command[30]) + ' [아이디]\n'     #!킬
 			command_list += ','.join(command[31]) + ' [아이디]\n'     #!킬삭제
+			command_list += ','.join(command[38]) + ' [아이디] 또는 ' + ','.join(command[38]) + ' [아이디] [횟수]\n'     #!킬차감
+			command_list += ','.join(command[34]) + '\n'     #!아이템 목록 초기화
+			command_list += ','.join(command[35]) + '\n'     #!아이템 목록 확인
+			command_list += ','.join(command[35]) + ' [아이템] 또는 ' + ','.join(command[35]) + ' [아이템] [개수]\n'     #!아이템 목록 입력
+			command_list += ','.join(command[36]) + ' [아이템]\n'     #!아이템 목록에서 삭제
+			command_list += ','.join(command[37]) + ' [아이템] 또는 ' + ','.join(command[37]) + ' [아이템] [개수]\n'     #!아이템 차감
 			command_list += ','.join(command[24]) + '\n'     #!공지
 			command_list += ','.join(command[24]) + ' [공지내용]\n'     #!공지
 			command_list += ','.join(command[25]) + '\n'     #!공지삭제
 			command_list += ','.join(command[26]) + ' [할말]\n'     #!상태
-			command_list += ','.join(command[33]) + ' 사다리, 정산, 척살, 경주\n\n'     #!채널설정
+			command_list += ','.join(command[33]) + ' 사다리, 정산, 척살, 경주, 아이템\n\n'     #!채널설정
 			command_list += ','.join(command[27]) + '\n'     #보스탐
 			command_list += ','.join(command[28]) + '\n'     #!보스탐
 			command_list += '[보스명]컷 또는 [보스명]컷 0000, 00:00\n'
@@ -1232,7 +1291,7 @@ while True:
 					)
 			embed.add_field(
 					name="----- 추가기능 -----",
-					value= '```- [보스명]컷/멍/예상  [할말] : 보스시간 입력 후 빈칸 두번!! 메모 가능\n- [보스명]컷 명령어는 초성으로 입력가능합니다.\n  ex)기감컷 => ㄱㄱㅋ, 기감 컷 => ㄱㄱ ㅋ```'
+					value= '```- [보스명]컷/멍/예상  [할말] : 보스시간 입력 후 빈칸 두번!! 메모 가능\n- [보스명]컷 명령어는 초성으로 입력가능합니다.\n  ex)' + bossData[0][0] + '컷 => ' + convertToInitialLetters(bossData[0][0] +'컷') + ', ' + bossData[0][0] + ' 컷 => ' + convertToInitialLetters(bossData[0][0] +' 컷') + '```'
 					)
 			await ctx.send( embed=embed, tts=False)
 		else:
@@ -1254,6 +1313,8 @@ while True:
 				setting_val += '척살채널 : ' + client.get_channel(int(basicSetting[20])).name + '\n'
 			if basicSetting[21] != "" :
 				setting_val += '경주채널 : ' + client.get_channel(int(basicSetting[21])).name + '\n'
+			if basicSetting[22] != "" :
+				setting_val += '아이템채널 : ' + client.get_channel(int(basicSetting[22])).name + '\n'
 			if basicSetting[8] != "" :
 				setting_val += '카톡챗방명 : ' + basicSetting[8] + '\n'
 			setting_val += '보스젠알림시간1 : ' + basicSetting[1] + ' 분 전\n'
@@ -1265,8 +1326,8 @@ while True:
 					color=0xff00ff
 					)
 			embed.add_field(
-					name="----- 도움주신분들 -----",
-					value= '```정산기능 : 총무님\n초성입력기능 : 옹님```'
+					name="----- Special Thanks to. -----",
+					value= '```총무님, 옹님```'
 					)
 			await ctx.send(embed=embed, tts=False)
 			#print ('보스젠알림시간1 : ', basicSetting[1])
@@ -1575,6 +1636,7 @@ while True:
 			print("명치!")
 			await dbSave()
 			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+			await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 			await voice_client1.disconnect()
 			#client.clear()
 			raise SystemExit
@@ -1596,6 +1658,7 @@ while True:
 						bossDateString[i] = tmp_bossTime[i].strftime('%Y-%m-%d')
 			await dbSave()
 			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+			await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 			await voice_client1.disconnect()
 			print("보탐봇강제재시작!")
 			os.system('restart.bat')
@@ -2247,6 +2310,7 @@ while True:
 
 			await dbSave()
 			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+			await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 		else:
 			return
 
@@ -2417,26 +2481,29 @@ while True:
 
 			await dbSave()
 			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+			await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
 		else:
 			return
 
 	################ 킬초기화 확인 ################ 
 	@client.command(name=command[29][0], aliases=command[29][1:])
 	async def killInit_(ctx):
-		global kill_Data
-
-		kill_Data = {}
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
+			global kill_Data
+
+			kill_Data = {}
+
 			await init_data_list('kill_list.ini', '-----척살명단-----')
-			await ctx.send( '< 킬 목록 초기화완료 >', tts=False)
+			return await ctx.send( '< 킬 목록 초기화완료 >', tts=False)
 		else:
 			return
 
-	################ 킬명단 확인 ################ 
+	################ 킬명단 확인 및 추가 ################ 
 	@client.command(name=command[30][0], aliases=command[30][1:]) 
 	async def killList_(ctx, *, args : str = None):
-		global kill_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
+			global kill_Data
+
 			if not args:
 				kill_output = ''
 				for key, value in kill_Data.items():
@@ -2460,19 +2527,19 @@ while True:
 				kill_Data[args] = 1
 					
 			embed = discord.Embed(
-					description= ':skull_crossbones:' + args + ' 따히! [' + str(kill_Data[args]) + '번]\n',
+					description= ':skull_crossbones: ' + args + ' 따히! [' + str(kill_Data[args]) + '번]\n',
 					color=0xff00ff
 					)
-			await ctx.send(embed=embed, tts=False)
-
+			return await ctx.send(embed=embed, tts=False)
 		else:
 			return
 
 	################ 킬삭제 ################ 
 	@client.command(name=command[31][0], aliases=command[31][1:])
 	async def killDel_(ctx, *, args : str = None):
-		global kill_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
+			global kill_Data
+
 			if not args:
 				return await ctx.send( '```제대로 된 아이디를 입력해주세요!\n```', tts=False)
 			
@@ -2481,6 +2548,49 @@ while True:
 				return await ctx.send( ':angel: ' + args + ' 삭제완료!', tts=False)
 			else :				
 				return await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
+		else:
+			return
+
+	################ 킬 차감 ################ 
+	@client.command(name=command[38][0], aliases=command[38][1:]) 
+	async def killSubtract_(ctx, *, args : str = None):
+		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
+			global kill_Data
+			
+			if not args:
+				return await ctx.send(f'{command[38][0]} [아이디] 혹은 {command[38][0]} [아이디] [횟수] 양식에 맞춰 입력해주세요!', tts = False)
+
+			input_data = args.split()
+			
+			if len(input_data) == 1:
+				kill_name = args
+				count = 1
+			elif len(input_data) == 2:
+				kill_name = input_data[0]
+				try:
+					count = int(input_data[1])
+				except ValueError:
+					return await ctx.send(f'[횟수]는 숫자로 입력바랍니다')
+			else:
+				return await ctx.send(f'{command[38][0]} [아이디] 혹은 {command[38][0]} [아이디] [횟수] 양식에 맞춰 입력해주세요!', tts = False)
+
+			if kill_name in kill_Data:
+				if kill_Data[kill_name] < int(count):
+					return await ctx.send( f"등록된 킬 횟수[{str(kill_Data[kill_name])}번]보다 차감 횟수[{str(count)}번]가 많습니다. 킬 횟수에 맞게 재입력 바랍니다.", tts=False)
+				else:
+					kill_Data[kill_name] -= int(count)
+			else:
+				return await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
+					
+			embed = discord.Embed(
+					description= f':angel: [{kill_name}] [{str(count)}번] 차감 완료! [잔여 : {str(kill_Data[kill_name])}번]\n',
+					color=0xff00ff
+					)
+			
+			if kill_Data[kill_name] == 0:
+				del kill_Data[kill_name]
+
+			return await ctx.send(embed=embed, tts=False)
 		else:
 			return
 
@@ -2622,7 +2732,7 @@ while True:
 					
 				#print(result)
 				await asyncio.sleep(1)
-				await result_race.edit(content = output + ':tada: 경주 종료!\n' + result_str)
+				return await result_race.edit(content = output + ':tada: 경주 종료!\n' + result_str)
 		else:
 			return
 
@@ -2648,8 +2758,8 @@ while True:
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send(f'< 사다리채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 사다리채널 [{ctx.message.channel.name}] 설정완료 >')
+			return await ctx.send(f'< 사다리채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 		elif msg == '정산' :
 			inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
 			inputData_text = inidata_text.readlines()
@@ -2664,8 +2774,8 @@ while True:
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send(f'< 정산채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 정산채널 [{ctx.message.channel.name}] 설정완료 >')
+			return await ctx.send(f'< 정산채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 		elif msg == '척살' :
 			inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
 			inputData_text = inidata_text.readlines()
@@ -2680,8 +2790,8 @@ while True:
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send(f'< 척살채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 척살채널 [{ctx.message.channel.name}] 설정완료 >')
+			return await ctx.send(f'< 척살채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 		elif msg == '경주' :
 			inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
 			inputData_text = inidata_text.readlines()
@@ -2696,8 +2806,8 @@ while True:
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send(f'< 경주채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 경주채널 [{ctx.message.channel.name}] 설정완료 >')
+			return await ctx.send(f'< 경주채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 		elif msg == '아이템' :
 			inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
 			inputData_text = inidata_text.readlines()
@@ -2712,29 +2822,30 @@ while True:
 			inidata_text.writelines(inputData_text)
 			inidata_text.close()
 
-			await ctx.send(f'< 아이템채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 아이템채널 [{ctx.message.channel.name}] 설정완료 >')
+			return await ctx.send(f'< 아이템채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 		else :
-			await ctx.send(f'```올바른 명령어를 입력해주세요.```', tts=False)
-
+			return await ctx.send(f'```올바른 명령어를 입력해주세요.```', tts=False)
 
 	################ 아이템초기화 확인 ################ 
 	@client.command(name=command[34][0], aliases=command[34][1:])
 	async def itemInit_(ctx):
-		global item_Data
-
-		item_Data = {}
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			global item_Data
+
+			item_Data = {}
+
 			await init_data_list('item_list.ini', '-----아이템 목록-----')
-			await ctx.send( '< 아이템 목록 초기화완료 >', tts=False)
+			return await ctx.send( '< 아이템 목록 초기화완료 >', tts=False)
 		else:
 			return
 
-	################ 아이템 목록 확인 ################ 
+	################ 아이템 목록 확인 및 추가 ################ 
 	@client.command(name=command[35][0], aliases=command[35][1:]) 
 	async def itemList_(ctx, *, args : str = None):
-		global item_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			global item_Data
+
 			if not args:
 				sorted_item_list = sorted(item_Data.items(), key=lambda x: x[0])
 
@@ -2769,10 +2880,10 @@ while True:
 				item_Data[item_name] = int(count)
 					
 			embed = discord.Embed(
-					description= ':inbox_tray:' + item_name + ' 등록 완료! [' + str(item_Data[item_name]) + '개]\n',
+					description= f':inbox_tray: **[{item_name}] [{str(count)}개]** 등록 완료! [잔여 : {str(item_Data[item_name])}개]\n',
 					color=0xff00ff
 					)
-			await ctx.send(embed=embed, tts=False)
+			return await ctx.send(embed=embed, tts=False)
 
 		else:
 			return
@@ -2780,8 +2891,9 @@ while True:
 	################ 아이템 삭제 ################ 
 	@client.command(name=command[36][0], aliases=command[36][1:])
 	async def itemDel_(ctx, *, args : str = None):
-		global item_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			global item_Data
+
 			if not args:
 				return await ctx.send( f'{command[36][0]} [아이템명] 양식에 맞춰 입력해주세요!', tts = False)
 
@@ -2793,7 +2905,50 @@ while True:
 					)
 				return await ctx.send(embed=embed, tts=False)
 			else :				
-				await ctx.send( '```아이템 목록에 등록되어 있지 않습니다!\n```', tts=False)
+				return await ctx.send( '```아이템 목록에 등록되어 있지 않습니다!\n```', tts=False)
+		else:
+			return
+
+	################ 아이템 차감 ################ 
+	@client.command(name=command[37][0], aliases=command[37][1:]) 
+	async def itemSubtract_(ctx, *, args : str = None):
+		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			global item_Data
+
+			if not args:
+				return await ctx.send(f'{command[37][0]} [아이템명] 혹은 {command[37][0]} [아이템명] [개수] 양식에 맞춰 입력해주세요!', tts = False)
+
+			input_data = args.split()
+			
+			if len(input_data) == 1:
+				item_name = args
+				count = 1
+			elif len(input_data) == 2:
+				item_name = input_data[0]
+				try:
+					count = int(input_data[1])
+				except ValueError:
+					return await ctx.send(f'아이템 [개수]는 숫자로 입력바랍니다')
+			else:
+				return await ctx.send(f'{command[37][0]} [아이템명] 혹은 {command[37][0]} [아이템명] [개수] 양식에 맞춰 입력해주세요!', tts = False)	
+
+			if item_name in item_Data:
+				if item_Data[item_name] < int(count):
+					return await ctx.send( f"등록된 아이템 개수[{str(item_Data[item_name])}개]보다 차감 개수[{str(count)}개]가 많습니다. 등록 개수에 맞게 재입력 바랍니다.", tts=False)
+				else:
+					item_Data[item_name] -= int(count)
+			else:
+				return await ctx.send( '```아이템 목록에 등록되어 있지 않습니다!\n```', tts=False)
+					
+			embed = discord.Embed(
+					description= f':outbox_tray: **[{item_name}] [{str(count)}개]** 차감 완료! [잔여 : {str(item_Data[item_name])}개]\n',
+					color=0xff00ff
+					)
+			
+			if item_Data[item_name] == 0:
+				del item_Data[item_name]
+
+			return await ctx.send(embed=embed, tts=False)
 		else:
 			return
 
