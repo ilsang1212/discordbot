@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- 
 
-############################ PC Ver. 24 (2020. 6. 23.) ##################################
+############################ PC Ver. 25 (2020. 7. 4.) ##################################
 #########################################################################################
 #########################################################################################
 #########################################################################################
@@ -156,6 +156,7 @@ def init():
 	global command
 	global kill_Data
 	global kill_Time
+	global item_Data
 
 	global tmp_racing_unit
 	
@@ -168,12 +169,15 @@ def init():
 	indexBossname = []
 	FixedBossDateData = []
 	indexFixedBossname = []
-	kill_Data = []
+	kill_Data = {}
 	tmp_kill_Data = []
+	item_Data = {}
+	tmp_item_Data = []
 	f = []
 	fb = []
 	fk = []
 	fc = []
+	fi = []
 	tmp_racing_unit = []
 
 	inidata = open('test_setting.ini', 'r', encoding = 'utf-8')
@@ -181,12 +185,14 @@ def init():
 	fixed_initdata = open('fixed_boss.ini', 'r', encoding = 'utf-8')
 	command_inidata = open('command.ini', 'r', encoding = 'utf-8')
 	kill_inidata = open('kill_list.ini', 'r', encoding = 'utf-8')
+	item_inidata = open('item_list.ini', 'r', encoding = 'utf-8')
 
 	inputData = inidata.readlines()
 	boss_inputData = boss_inidata.readlines()
 	fixed_inputData = fixed_initdata.readlines()
 	command_inputData = command_inidata.readlines()
 	kill_inputData = kill_inidata.readlines()
+	item_inputData = item_inidata.readlines()
 
 	for i in range(len(inputData)):
 		InitkatalkData.append(inputData[i])
@@ -201,6 +207,7 @@ def init():
 	del(fixed_inputData[0])
 	del(command_inputData[0])
 	del(kill_inputData[0])
+	del(item_inputData[0])
 
 	index = 0
 	index_fixed = 0
@@ -229,30 +236,34 @@ def init():
 
 	for i in range(kill_inputData.count('\n')):
 		kill_inputData.remove('\n')
+
+	for i in range(item_inputData.count('\n')):
+		item_inputData.remove('\n')
 	
 	############## 보탐봇 초기 설정 리스트 #####################
 	basicSetting.append(inputData[0][12:])     #basicSetting[0] : bot_token
-	basicSetting.append(inputData[9][15:])     #basicSetting[1] : before_alert
-	basicSetting.append(inputData[11][10:])     #basicSetting[2] : mungChk
-	basicSetting.append(inputData[10][16:])     #basicSetting[3] : before_alert1
-	basicSetting.append(inputData[14][14:16])  #basicSetting[4] : restarttime 시
-	basicSetting.append(inputData[14][17:])    #basicSetting[5] : restarttime 분
+	basicSetting.append(inputData[10][15:])     #basicSetting[1] : before_alert
+	basicSetting.append(inputData[12][10:])     #basicSetting[2] : mungChk
+	basicSetting.append(inputData[11][16:])     #basicSetting[3] : before_alert1
+	basicSetting.append(inputData[15][14:16])  #basicSetting[4] : restarttime 시
+	basicSetting.append(inputData[15][17:])    #basicSetting[5] : restarttime 분
 	basicSetting.append(inputData[3][15:])     #basicSetting[6] : voice채널 ID
 	basicSetting.append(inputData[4][14:])     #basicSetting[7] : text채널 ID
 	basicSetting.append(inputData[1][16:])     #basicSetting[8] : 카톡챗방명
 	basicSetting.append(inputData[2][13:])     #basicSetting[9] : 카톡챗On/Off
 	basicSetting.append(inputData[5][16:])     #basicSetting[10] : 사다리 채널 ID
-	basicSetting.append(inputData[13][14:])    #basicSetting[11] : !q 표시 보스 수
-	basicSetting.append(inputData[15][16:])    #basicSetting[12] : restart 주기
+	basicSetting.append(inputData[14][14:])    #basicSetting[11] : !q 표시 보스 수
+	basicSetting.append(inputData[16][16:])    #basicSetting[12] : restart 주기
 	basicSetting.append(inputData[6][17:])     #basicSetting[13] : 정산 채널 ID
-	basicSetting.append(inputData[16][12:])    #basicSetting[14] : 스프레드시트 파일 이름
-	basicSetting.append(inputData[17][11:])    #basicSetting[15] : json 파일명
-	basicSetting.append(inputData[18][12:])    #basicSetting[16] : 시트 이름
-	basicSetting.append(inputData[19][12:])    #basicSetting[17] : 입력 셀
-	basicSetting.append(inputData[20][13:])    #basicSetting[18] : 출력 셀
-	basicSetting.append(inputData[12][13:])    #basicSetting[19] : 멍삭제횟수
+	basicSetting.append(inputData[17][12:])    #basicSetting[14] : 스프레드시트 파일 이름
+	basicSetting.append(inputData[18][11:])    #basicSetting[15] : json 파일명
+	basicSetting.append(inputData[19][12:])    #basicSetting[16] : 시트 이름
+	basicSetting.append(inputData[20][12:])    #basicSetting[17] : 입력 셀
+	basicSetting.append(inputData[21][13:])    #basicSetting[18] : 출력 셀
+	basicSetting.append(inputData[13][13:])    #basicSetting[19] : 멍삭제횟수
 	basicSetting.append(inputData[7][14:])     #basicSetting[20] : kill채널 ID
 	basicSetting.append(inputData[8][16:])     #basicSetting[21] : racing채널 ID
+	basicSetting.append(inputData[9][14:])     #basicSetting[22] : item채널 ID
 
 	############## 보탐봇 명령어 리스트 #####################
 	for i in range(len(command_inputData)):
@@ -266,9 +277,17 @@ def init():
 	for i in range(len(kill_inputData)):
 		tmp_kill_Data.append(kill_inputData[i].rstrip('\n'))
 		fk.append(tmp_kill_Data[i][:tmp_kill_Data[i].find(' ')])
-		fk.append(tmp_kill_Data[i][tmp_kill_Data[i].find(' ')+1:tmp_kill_Data[i].find(' ')+2])
-		kill_Data.append(fk)     #kill_Data[0] : 척살명단   kill,._Data[1] : 죽은횟수
+		fk.append(tmp_kill_Data[i][tmp_kill_Data[i].find(' ')+1:])
+		kill_Data[fk[0]] = int(fk[1])
 		fk = []
+
+	################## 아이템 목록 ###########################
+	for i in range(len(item_inputData)):
+		tmp_item_Data.append(item_inputData[i].rstrip('\n'))
+		fi.append(tmp_item_Data[i][:tmp_item_Data[i].find(' ')])
+		fi.append(tmp_item_Data[i][tmp_item_Data[i].find(' ')+1:])
+		item_Data[fi[0]] = int(fi[1])
+		fi = []
 
 	tmp_killtime = datetime.datetime.now().replace(hour=int(5), minute=int(0), second = int(0))
 	kill_Time = datetime.datetime.now()
@@ -401,7 +420,10 @@ def init():
 	outputTimeMin = []
 
 	for i in range(bossNum):
-		f.append(bossData[i][0])
+		if bossData[i][2] == "1":
+			f.append(bossData[i][0] + "R")
+		else:
+			f.append(bossData[i][0])
 		f.append(bossData[i][1] + bossData[i][5])
 		regenData.append(f)
 		regenTime.append(bossData[i][1] + bossData[i][5])
@@ -497,7 +519,7 @@ async def task():
 			log_stream.seek(0)
 			await client.get_channel(channel).send( '< 디코접속에러! 잠깐 나갔다 올께요! >', tts=False)
 			await dbSave()
-			await kill_list_Save()
+			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 			raise SystemExit
 
 		log_stream.truncate(0)
@@ -514,7 +536,7 @@ async def task():
 			if endTime.strftime('%Y-%m-%d ') + endTime.strftime('%H:%M:%S') == now.strftime('%Y-%m-%d ') + now.strftime('%H:%M:%S'):
 				await dbSave()
 				await FixedBossDateSave()
-				await kill_list_Save()
+				await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 				endTime = endTime + datetime.timedelta(days=int(basicSetting[12]))
 				await voice_client1.disconnect()
 				#await client.get_channel(channel).send( '<보탐봇 화장실 갔다올 시간! 접속완료 후 명령어 입력 해주세요!>', tts=False)
@@ -854,27 +876,22 @@ async def LadderFunc(number, ladderlist, channelVal):
 	else:
 		await channelVal.send('```추첨인원이 총 인원과 같거나 많습니다. 재입력 해주세요```', tts=False)
 
-#킬초기화
-async def initkill_list():
-	global kill_Data
-	
-	kill_Data = []
-	file = open('kill_list.ini', 'w', encoding = 'utf-8')
-	file.writelines('-----척살명단-----')
+#data초기화
+async def init_data_list(filename, fist_line : str = "-----------"):
+	file = open(filename, 'w', encoding = 'utf-8')
+	file.writelines(fist_line)
 	file.close()
-	print ('<킬리스트 초기화>')
+	print ('< 데이터 초기화 >')
 
 #킬목록저장
-async def kill_list_Save():
-	global kill_Data
+async def data_list_Save(filename, fist_line : str = "-----------",  save_data : dict = {}):
 
-	output_kill_list = '-----척살명단-----\n'
-	for i in range(len(kill_Data)):
-		if kill_Data[i][0] != '':
-			output_kill_list += str(kill_Data[i][0]) + ' ' + str(kill_Data[i][1]) + '\n'
+	output_list = fist_line+ '\n'
+	for key, value in save_data.items():
+		output_list += str(key) + ' ' + str(value) + '\n'
 
-	file = open('kill_list.ini', 'w', encoding = 'utf-8')
-	file.writelines(output_kill_list)	
+	file = open(filename, 'w', encoding = 'utf-8')
+	file.writelines(output_list)	
 	file.close()
 
 #카톡메세지
@@ -1226,7 +1243,7 @@ while True:
 	async def setting_(ctx):	
 		#print (ctx.message.channel.id)
 		if ctx.message.channel.id == basicSetting[7]:
-			setting_val = '보탐봇버전 : PC Ver. 24 (2020. 6. 23.)\n'
+			setting_val = '보탐봇버전 : PC Ver. 25 (2020. 7. 4.)\n'
 			setting_val += '음성채널 : ' + client.get_channel(basicSetting[6]).name + '\n'
 			setting_val += '텍스트채널 : ' + client.get_channel(basicSetting[7]).name +'\n'
 			if basicSetting[10] != "" :
@@ -1557,7 +1574,7 @@ while True:
 			await ctx.send( '< 보탐봇 명치 맞고 숨 고르기 중! 잠시만요! >', tts=False)
 			print("명치!")
 			await dbSave()
-			await kill_list_Save()
+			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 			await voice_client1.disconnect()
 			#client.clear()
 			raise SystemExit
@@ -1578,7 +1595,7 @@ while True:
 						bossTimeString[i] = tmp_bossTime[i].strftime('%H:%M:%S')
 						bossDateString[i] = tmp_bossTime[i].strftime('%Y-%m-%d')
 			await dbSave()
-			await kill_list_Save()
+			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 			await voice_client1.disconnect()
 			print("보탐봇강제재시작!")
 			os.system('restart.bat')
@@ -2229,7 +2246,7 @@ while True:
 					await ctx.send( embed=embed, tts=False)
 
 			await dbSave()
-			await kill_list_Save()
+			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 		else:
 			return
 
@@ -2399,7 +2416,7 @@ while True:
 				await ctx.send( embed=embed, tts=False)
 
 			await dbSave()
-			await kill_list_Save()
+			await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 		else:
 			return
 
@@ -2407,49 +2424,23 @@ while True:
 	@client.command(name=command[29][0], aliases=command[29][1:])
 	async def killInit_(ctx):
 		global kill_Data
+
+		kill_Data = {}
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
-			await initkill_list()
+			await init_data_list('kill_list.ini', '-----척살명단-----')
 			await ctx.send( '< 킬 목록 초기화완료 >', tts=False)
 		else:
 			return
 
 	################ 킬명단 확인 ################ 
 	@client.command(name=command[30][0], aliases=command[30][1:]) 
-	async def killList_(ctx):
+	async def killList_(ctx, *, args : str = None):
 		global kill_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
-			msg = ctx.message.content[len(ctx.invoked_with)+1:]
-			if len(msg) > 1:
-				sayMessage = msg
-
-				tmp_fk = []
-				listchk = 0
-
-				if sayMessage != ' ':
-					for i in range(len(kill_Data)):
-						if sayMessage == kill_Data[i][0]:
-							kill_Data[i][1] = int(kill_Data[i][1]) + 1
-							abc = kill_Data[i][1]
-							listchk = 1
-
-					if listchk == 0:
-						abc = 1
-						tmp_fk.append(sayMessage)
-						tmp_fk.append(1)
-						kill_Data.append(tmp_fk)
-						tmp_fk = []
-					embed = discord.Embed(
-							description= ':skull_crossbones:' + sayMessage + ' 따히! [' + str(abc) + '번]\n',
-							color=0xff00ff
-							)
-					await ctx.send(embed=embed, tts=False)
-				else:
-					await ctx.send( '```제대로 된 아이디를 입력해주세요!\n```', tts=False)
-			else:
+			if not args:
 				kill_output = ''
-				for i in range(len(kill_Data)):
-					if kill_Data[i][0] != '':
-						kill_output += ':skull_crossbones: ' + str(kill_Data[i][0]) + ' : ' + str(kill_Data[i][1]) + '번 따히!\n'
+				for key, value in kill_Data.items():
+					kill_output += ':skull_crossbones: ' + str(key) + ' : ' + str(value) + '번 따히!\n'
 
 				if kill_output != '' :
 					embed = discord.Embed(
@@ -2461,33 +2452,35 @@ while True:
 							description= '등록된 킬 목록이 없습니다. 분발하세요!',
 							color=0xff00ff
 							)
-				await ctx.send(embed=embed, tts=False)
+				return await ctx.send(embed=embed, tts=False)
+
+			if args in kill_Data:
+				kill_Data[args] += 1
+			else:
+				kill_Data[args] = 1
+					
+			embed = discord.Embed(
+					description= ':skull_crossbones:' + args + ' 따히! [' + str(kill_Data[args]) + '번]\n',
+					color=0xff00ff
+					)
+			await ctx.send(embed=embed, tts=False)
+
 		else:
 			return
 
 	################ 킬삭제 ################ 
 	@client.command(name=command[31][0], aliases=command[31][1:])
-	async def killDel_(ctx):
+	async def killDel_(ctx, *, args : str = None):
 		global kill_Data
 		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[20]:
-			msg = ctx.message.content[len(ctx.invoked_with)+1:]
-			sayMessage = msg
-
-			indexchk = 0
-
-			if sayMessage != ' ':
-				
-				for i in range(len(kill_Data)):
-					if sayMessage == kill_Data[i][0]:
-						indexchk = i + 1
-						
-				if indexchk != 0:
-					del(kill_Data[indexchk-1])
-					await ctx.send( '```<' + sayMessage + '> 킬 목록 삭제완료!\n```', tts=False)
-				else :				
-					await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
-			else:
-				await ctx.send( '```제대로 된 아이디를 입력해주세요!\n```', tts=False)
+			if not args:
+				return await ctx.send( '```제대로 된 아이디를 입력해주세요!\n```', tts=False)
+			
+			if args in kill_Data:
+				del kill_Data[args]
+				return await ctx.send( ':angel: ' + args + ' 삭제완료!', tts=False)
+			else :				
+				return await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
 		else:
 			return
 
@@ -2705,8 +2698,104 @@ while True:
 
 			await ctx.send(f'< 경주채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
 			print(f'< 경주채널 [{ctx.message.channel.name}] 설정완료 >')
+		elif msg == '아이템' :
+			inidata_text = open('test_setting.ini', 'r', encoding = 'utf-8')
+			inputData_text = inidata_text.readlines()
+			inidata_text.close()
+		
+			inidata_text = open('test_setting.ini', 'w', encoding = 'utf-8')				
+			for i in range(len(inputData_text)):
+				if inputData_text[i].startswith('itemchannel'):
+					inputData_text[i] = 'itemchannel = ' +str(channel) + '\n'
+					basicSetting[22] = channel
+			
+			inidata_text.writelines(inputData_text)
+			inidata_text.close()
+
+			await ctx.send(f'< 아이템채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
+			print(f'< 아이템채널 [{ctx.message.channel.name}] 설정완료 >')
 		else :
 			await ctx.send(f'```올바른 명령어를 입력해주세요.```', tts=False)
+
+
+	################ 아이템초기화 확인 ################ 
+	@client.command(name=command[34][0], aliases=command[34][1:])
+	async def itemInit_(ctx):
+		global item_Data
+
+		item_Data = {}
+		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			await init_data_list('item_list.ini', '-----아이템 목록-----')
+			await ctx.send( '< 아이템 목록 초기화완료 >', tts=False)
+		else:
+			return
+
+	################ 아이템 목록 확인 ################ 
+	@client.command(name=command[35][0], aliases=command[35][1:]) 
+	async def itemList_(ctx, *, args : str = None):
+		global item_Data
+		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			if not args:
+				sorted_item_list = sorted(item_Data.items(), key=lambda x: x[0])
+
+				embed = discord.Embed(title = '', description = f'`{client.user.name}\'s 창고`', color = 0x00ff00)
+
+				if len(sorted_item_list) > 0 :
+					for item_id, count in sorted_item_list:
+						embed.add_field(name = item_id, value = count)
+				else :
+					embed.add_field(name = '\u200b\n', value = '창고가 비었습니다.\n\u200b')
+
+				embed.set_footer(text = f"전체 아이템 종류  :  {len(item_Data)}개")
+				return await ctx.send(embed=embed, tts=False)
+
+			input_data = args.split()
+			
+			if len(input_data) == 1:
+				item_name = args
+				count = 1
+			elif len(input_data) == 2:
+				item_name = input_data[0]
+				try:
+					count = int(input_data[1])
+				except ValueError:
+					return await ctx.send(f'아이템 [개수]는 숫자로 입력바랍니다')
+			else:
+				return await ctx.send(f'{command[35][0]} [아이템명] 혹은 {command[35][0]} [아이템명] [개수] 양식에 맞춰 입력해주세요!', tts = False)	
+
+			if item_name in item_Data:
+				item_Data[item_name] += int(count)
+			else:
+				item_Data[item_name] = int(count)
+					
+			embed = discord.Embed(
+					description= ':inbox_tray:' + item_name + ' 등록 완료! [' + str(item_Data[item_name]) + '개]\n',
+					color=0xff00ff
+					)
+			await ctx.send(embed=embed, tts=False)
+
+		else:
+			return
+
+	################ 아이템 삭제 ################ 
+	@client.command(name=command[36][0], aliases=command[36][1:])
+	async def itemDel_(ctx, *, args : str = None):
+		global item_Data
+		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[22]:
+			if not args:
+				return await ctx.send( f'{command[36][0]} [아이템명] 양식에 맞춰 입력해주세요!', tts = False)
+
+			if args in item_Data:
+				del item_Data[args]
+				embed = discord.Embed(
+					description= ':outbox_tray: ' + args + ' 삭제완료!',
+					color=0xff00ff
+					)
+				return await ctx.send(embed=embed, tts=False)
+			else :				
+				await ctx.send( '```아이템 목록에 등록되어 있지 않습니다!\n```', tts=False)
+		else:
+			return
 
 	################ ?????????????? ################ 
 	@client.command(name='!오빠')
