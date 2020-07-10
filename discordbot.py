@@ -1054,14 +1054,11 @@ async def on_ready():
 
 	global endTime
 	global setting_channel_name
-	global all_guilds
 			
 	print("Logged in as ") #화면에 봇의 아이디, 닉네임이 출력됩니다.
 	print(client.user.name)
 	print(client.user.id)
 	print("===========")
-
-	all_guilds = client.guilds
 
 	channel_name, channel_id, channel_voice_name, channel_voice_id = await get_guild_channel_info()
 
@@ -1193,7 +1190,7 @@ while True:
 			
 			chflg = 1
 		else:
-			for guild in all_guilds:
+			for guild in client.guilds:
 				for text_channel in guild.text_channels:
 					if basicSetting[7] == text_channel.id:
 						curr_guild_info = guild
@@ -2974,41 +2971,32 @@ while True:
 	@commands.has_permissions(manage_messages=True)
 	@client.command(name=command[39][0], aliases=command[39][1:])
 	async def leaveGuild_(ctx):
-		global all_guilds
+		if ctx.message.channel.id == basicSetting[7]:
+			guild_list : str = ""
+			guild_name : str = ""
 
-		guild_list : str = ""
+			for i, gulid_name in enumerate(client.guilds):
+				guild_list += f"`{i+1}.` {gulid_name}\n"
 
-		for i, gulid_name in enumerate(all_guilds):
-			guild_list += f"`{i+1}.` {gulid_name}\n"
+			embed = discord.Embed(
+				title = "----- 서버 목록 -----",
+				description = guild_list,
+				color=0x00ff00
+				)
+			await ctx.send(embed = embed)
 
-		embed = discord.Embed(
-			title = "----- 서버 목록 -----",
-			description = guild_list,
-			color=0x00ff00
-			)
-		await ctx.send(embed = embed)
+			try:
+				await ctx.send(f"```떠나고 싶은 서버의 [숫자]를 입력하여 선택해 주세요```")
+				message_result : discord.Message = await client.wait_for("message", timeout = 10, check=(lambda message: message.channel == ctx.message.channel and message.author == ctx.message.author))
+			except asyncio.TimeoutError:
+				return await ctx.send(f"```서버 선택 시간이 초과됐습니다! 필요시 명령어를 재입력해 주세요```")
 
-		try:
-			await ctx.send(f"```떠나고 싶은 서버의 [숫자]를 입력하여 선택해 주세요```")
-			message_result : discord.Message = await client.wait_for("message", timeout = 10, check=(lambda message: message.channel == ctx.message.channel and message.author == ctx.message.author))
-		except asyncio.TimeoutError:
-			return await ctx.send(f"```서버 선택 시간이 초과됐습니다! 필요시 명령어를 재입력해 주세요```")
-			
-		await client.get_guild(all_guilds[int(message_result.content)-1].id).leave()
-
-		all_guilds = client.guilds
-
-		guild_list : str = ""
-
-		for i, gulid_name in enumerate(all_guilds):
-			guild_list += f"`{i+1}.` {gulid_name}\n"
-
-		embed = discord.Embed(
-			title = "----- 서버 목록 -----",
-			description = guild_list,
-			color=0x00ff00
-			)
-		await ctx.send(embed = embed)
+			try:
+				guild_name = client.guilds[int(message_result.content)-1].name
+				await client.get_guild(client.guilds[int(message_result.content)-1].id).leave()
+				return await ctx.send(f"```[{guild_name}] 서버에서 떠났습니다.!```")
+			except ValueError:
+				return			
 
 	################ ?????????????? ################ 
 	@client.command(name='!오빠')
