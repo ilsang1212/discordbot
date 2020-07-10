@@ -915,6 +915,7 @@ async def get_guild_channel_info():
 		for voice_channel in guild.voice_channels:
 			voice_channel_name.append(voice_channel.name)
 			voice_channel_id.append(str(voice_channel.id))
+
 	return text_channel_name, text_channel_id, voice_channel_name, voice_channel_id
 
 #카톡메세지
@@ -1396,22 +1397,32 @@ while True:
 
 			ch_information = []
 			cnt = 0
-			ch_information.append('')
-			for i in range(len(channel_name)):
-				if len(ch_information[cnt]) > 900 :
-					ch_information.append('')
-					cnt += 1
-				ch_information[cnt] = ch_information[cnt] + '[' + channel_id[i] + '] ' + channel_name[i] + '\n'
+			ch_information.append("")
 
 			ch_voice_information = []
 			cntV = 0
-			ch_voice_information.append('')
-			for i in range(len(channel_voice_name)):
-				if len(ch_voice_information[cntV]) > 900 :
-					ch_voice_information.append('')
-					cntV += 1
-				ch_voice_information[cntV] = ch_voice_information[cntV] + '[' + channel_voice_id[i] + '] ' + channel_voice_name[i] + '\n'
+			ch_voice_information.append("")
 
+			for guild in client.guilds:
+				ch_information[cnt] = f"{ch_information[cnt]}👑  {guild.name}  👑\n"
+				for i in range(len(channel_name)):
+					for text_channel in guild.text_channels:
+						if channel_id[i] == str(text_channel.id):
+							if len(ch_information[cnt]) > 900 :
+								ch_information.append("")
+								cnt += 1
+							ch_information[cnt] = f"{ch_information[cnt]}[{channel_id[i]}] {channel_name[i]}\n"
+
+				ch_voice_information[cntV] = f"{ch_voice_information[cntV]}👑  {guild.name}  👑\n"
+				for i in range(len(channel_voice_name)):
+					for voice_channel in guild.voice_channels:
+						if channel_voice_id[i] == str(voice_channel.id):
+							if len(ch_voice_information[cntV]) > 900 :
+								ch_voice_information.append("")
+								cntV += 1
+							ch_voice_information[cntV] = f"{ch_voice_information[cntV]}[{channel_voice_id[i]}] {channel_voice_name[i]}\n"
+					
+			######################
 			if len(ch_information) == 1 and len(ch_voice_information) == 1:
 				embed = discord.Embed(
 					title = "----- 채널 정보 -----",
@@ -2971,7 +2982,7 @@ while True:
 			guild_list += f"`{i+1}.` {gulid_name}\n"
 
 		embed = discord.Embed(
-			title = "----- 길드 목록 -----",
+			title = "----- 서버 목록 -----",
 			description = guild_list,
 			color=0x00ff00
 			)
@@ -2993,7 +3004,7 @@ while True:
 			guild_list += f"`{i+1}.` {gulid_name}\n"
 
 		embed = discord.Embed(
-			title = "----- 길드 목록 -----",
+			title = "----- 서버 목록 -----",
 			description = guild_list,
 			color=0x00ff00
 			)
