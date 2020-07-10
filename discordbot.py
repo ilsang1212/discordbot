@@ -901,6 +901,7 @@ async def data_list_Save(filename, first_line : str = "-----------",  save_data 
 	file.writelines(output_list)	
 	file.close()
 
+#서버(길드) 정보 
 async def get_guild_channel_info():
 	text_channel_name : list = []
 	text_channel_id : list = []
@@ -2957,7 +2958,8 @@ while True:
 			return await ctx.send(embed=embed, tts=False)
 		else:
 			return
-			
+
+	################ 서버 나가기 ################ 		
 	@commands.has_permissions(manage_messages=True)
 	@client.command(name=command[39][0], aliases=command[39][1:])
 	async def leaveGuild_(ctx):
