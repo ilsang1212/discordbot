@@ -1208,6 +1208,7 @@ while True:
 				return await ctx.send(f"시간이 초과됐습니다. **[{curr_guild_info.name}]** 서버 **[{setting_channel_name}]** 채널에서 사용해주세요!")
 			
 			if str(reaction) == "⭕":
+				await voice_client1.disconnect()
 				basicSetting[6] = ""
 				basicSetting[7] = int(ctx.message.channel.id)
 
