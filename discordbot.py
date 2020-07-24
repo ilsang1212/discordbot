@@ -2863,17 +2863,38 @@ while True:
 
 			if not args:
 				sorted_item_list = sorted(item_Data.items(), key=lambda x: x[0])
-
+			
+				embed_list : list = []
+				embed_index : int = 0
+				embed_cnt : int = 0
 				embed = discord.Embed(title = '', description = f'`{client.user.name}\'s 창고`', color = 0x00ff00)
+				
+				embed_list.append(embed)
 
 				if len(sorted_item_list) > 0 :
 					for item_id, count in sorted_item_list:
-						embed.add_field(name = item_id, value = count)
+						embed_cnt += 1
+						if embed_cnt > 24 :
+							embed_cnt = 0
+							embed_index += 1
+							tmp_embed = discord.Embed(
+								title = "",
+								description = "",
+								color=0x00ff00
+								)
+							embed_list.append(tmp_embed)
+						embed_list[embed_index].add_field(name = item_id, value = count)
+					embed_list[len(embed_list)-1].set_footer(text = f"전체 아이템 종류  :  {len(item_Data)}개")
+					if len(embed_list) > 1:
+						for embed_data in embed_list:
+							await asyncio.sleep(0.1)
+							await ctx.send(embed = embed_data)
+						return 
+					else:
+						return await ctx.send(embed=embed, tts=False)
 				else :
 					embed.add_field(name = '\u200b\n', value = '창고가 비었습니다.\n\u200b')
-
-				embed.set_footer(text = f"전체 아이템 종류  :  {len(item_Data)}개")
-				return await ctx.send(embed=embed, tts=False)
+					return await ctx.send(embed=embed, tts=False)
 
 			input_data = args.split()
 			
