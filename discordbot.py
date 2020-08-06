@@ -452,6 +452,7 @@ def init():
 init()
 
 channel = ''
+
 #mp3 파일 생성함수(gTTS 이용, 남성목소리)
 async def MakeSound(saveSTR, filename):
 	tts = gTTS(saveSTR, lang = 'ko')
@@ -1228,7 +1229,7 @@ class mainCog(commands.Cog):
 	async def setting_(self, ctx):	
 		#print (ctx.message.channel.id)
 		if ctx.message.channel.id == basicSetting[7]:
-			setting_val = '보탐봇버전 : PC Ver. 25 (2020. 7. 4.)\n'
+			setting_val = '보탐봇버전 : PC Ver. 26 (2020. 8. 6.)\n'
 			setting_val += '음성채널 : ' + ctx.guild.get_channel(basicSetting[6]).name + '\n'
 			setting_val += '텍스트채널 : ' + ctx.guild.get_channel(basicSetting[7]).name +'\n'
 			if basicSetting[10] != "" :
@@ -1429,7 +1430,7 @@ class mainCog(commands.Cog):
 	async def connectVoice_(self, ctx):
 		global voice_client1
 		global basicSetting
-		global voice_client1
+		
 		if ctx.message.channel.id == basicSetting[7]:
 			if ctx.voice_client is None:
 				if ctx.author.voice:
