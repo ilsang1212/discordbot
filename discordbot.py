@@ -765,6 +765,8 @@ class taskCog(commands.Cog):
 	async def main_task(self):
 		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
 
+		await boss_task
+
 	@main_task.before_loop
 	async def before_tast(self):
 		await self.bot.wait_until_ready()
@@ -778,6 +780,7 @@ class taskCog(commands.Cog):
 		for t in asyncio.Task.all_tasks():
 			# print(t._coro.__name__)
 			if t._coro.__name__ == f"boss_check":
+				print("-------------")
 				if t.done():
 					try:
 						t.exception()
@@ -795,6 +798,7 @@ class taskCog(commands.Cog):
 				ctx.voice_client.stop()
 			await ctx.voice_client.disconnect()
 		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
+		await boss_task
 		return
 
 	async def boss_check(self):
@@ -854,7 +858,7 @@ class taskCog(commands.Cog):
 				await dbSave()
 				await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
 				await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
-				await self.bot.get_channel(channel).send( f"**[{command[9][0]}]** 명령어를 실행해 주세요!", tts=False)
+				await self.bot.get_channel(channel).send( f"< 디코접속에러! 잠깐 나갔다 올께요! >", tts=False)
 				break
 
 			log_stream.truncate(0)
@@ -1032,10 +1036,12 @@ class taskCog(commands.Cog):
 											)
 										await self.bot.get_channel(channel).send( embed=embed, tts=False)
 										await dbSave()
-												
-			await asyncio.sleep(1)
 
-		await boss_check()
+			await asyncio.sleep(1)
+	
+		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
+
+		await boss_task
 
 class mainCog(commands.Cog): 
 	def __init__(self, bot):
