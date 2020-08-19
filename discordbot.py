@@ -763,9 +763,7 @@ class taskCog(commands.Cog):
 
 	@tasks.loop(seconds=1.0, count=1)
 	async def main_task(self):
-		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
-
-		await boss_task
+		boss_task = asyncio.Task(self.boss_check())
 
 	@main_task.before_loop
 	async def before_tast(self):
@@ -797,9 +795,7 @@ class taskCog(commands.Cog):
 			if ctx.voice_client.is_playing():
 				ctx.voice_client.stop()
 			await ctx.voice_client.disconnect()
-		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
-		await boss_task
-		return
+		boss_task = asyncio.Task(self.boss_check())
 
 	async def boss_check(self):
 		global channel
@@ -843,13 +839,12 @@ class taskCog(commands.Cog):
 		global kill_Time
 
 		if chflg == 1 : 
-			if voice_client1.is_connected() == False :
+			if len(self.bot.voice_clients) == 0 :
 				voice_client1 = await self.bot.get_channel(basicSetting[6]).connect(reconnect=True)
 				if voice_client1.is_connected() :
 					print("명치복구완료!")
 					await dbLoad()
 					await self.bot.get_channel(channel).send( '< 다시 왔습니다! >', tts=False)
-
 		while True:
 			############ 워닝잡자! ############
 			if log_stream.getvalue().find("Awaiting") != -1:
@@ -1036,12 +1031,28 @@ class taskCog(commands.Cog):
 											)
 										await self.bot.get_channel(channel).send( embed=embed, tts=False)
 										await dbSave()
-
 			await asyncio.sleep(1)
-	
-		boss_task = asyncio.get_event_loop().create_task(self.boss_check())
 
-		await boss_task
+		if voice_client1 is not None:
+			if voice_client1.is_playing():
+				voice_client1.stop()
+			await voice_client1.disconnect()
+	
+		for t in asyncio.Task.all_tasks():
+			if t._coro.__name__ == f"boss_check":
+				print("-------------")
+				if t.done():
+					try:
+						t.exception()
+					except asyncio.CancelledError:
+						continue
+					continue
+				t.cancel()
+		await dbSave()
+		await data_list_Save("kill_list.ini", "-----척살명단-----", kill_Data)
+		await data_list_Save("item_list.ini", "-----아이템목록-----", item_Data)
+
+		boss_task = asyncio.Task(self.boss_check())
 
 class mainCog(commands.Cog): 
 	def __init__(self, bot):
